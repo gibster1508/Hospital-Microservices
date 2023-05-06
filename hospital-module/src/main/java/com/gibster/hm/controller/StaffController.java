@@ -40,7 +40,7 @@ public class StaffController {
     ResponseEntity<String> patientResponse = patientFeign.appointNurseForPatient(patientId, nurseId);
 
     if (HttpStatus.OK.equals(doctorResponse.getStatusCode()) && HttpStatus.OK.equals(patientResponse.getStatusCode())) {
-      return ResponseEntity.ok("Doctor was successfully appointed for the patient");
+      return ResponseEntity.ok("Nurse was successfully appointed for the patient");
     } else {
       return ResponseEntity.internalServerError().body("Doctor was successfully appointed for the patient");
     }

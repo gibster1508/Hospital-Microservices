@@ -11,7 +11,9 @@ import com.gibster.repo.dm.model.Doctor;
 import com.gibster.repo.nm.model.Nurse;
 import com.gibster.repo.pm.dto.PatientDto;
 import com.gibster.repo.pm.dto.PatientUpdateDto;
+import com.gibster.repo.pm.model.Appointment;
 import com.gibster.repo.pm.model.Patient;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +37,10 @@ public class PatientServiceImpl implements PatientService {
         try {
             patient.setDoctors(Collections.emptyList());
             patient.setNurses(Collections.emptyList());
-
+            patient.setDiagnosis("not defined");
+            Appointment appointment = new Appointment();
+            System.out.println(Arrays.toString(appointment.getClass().getFields()));
+            patient.setAppointment(new Appointment("Procedures - not assigned", "medicament - not assigned", "surgery - not assigned"));
             Patient savedPatient = repository.save(patient);
             hospitalFeign.updatePatientInformation(savedPatient.getHospitalId(), savedPatient);
             return PopulateHelper.convertToPatientDto(savedPatient);

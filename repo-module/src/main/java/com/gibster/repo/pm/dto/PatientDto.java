@@ -15,7 +15,9 @@ import lombok.Setter;
 public class PatientDto {
   private Long id;
   private String name;
+  private String diagnosis;
   private String address;
+  private String appointment;
   private List<Long> doctors;
   private List<Long> nurses;
   private Long hospitalId;

@@ -28,10 +28,21 @@ public class Patient {
 
   @Getter
   @Setter
+  @Column(nullable = false)
+  private String diagnosis;
+
+  @Getter
+  @Setter
   @NotEmpty
   @Embedded
   @Column(nullable = false)
   private AddressModel address;
+
+  @Getter
+  @Setter
+  @Embedded
+  @Column(nullable = false)
+  private Appointment appointment;
 
   @Getter
   @Setter
