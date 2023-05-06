@@ -1,6 +1,8 @@
 package com.gibster.repo.nm.model;
 
 import com.gibster.repo.dm.model.AddressModel;
+import java.util.List;
+import javax.persistence.ElementCollection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,4 +39,9 @@ public class Nurse {
   @Getter
   @Setter
   private Long hospitalId;
+
+  @Getter
+  @Setter
+  @ElementCollection
+  private List<Long> patients;
 }

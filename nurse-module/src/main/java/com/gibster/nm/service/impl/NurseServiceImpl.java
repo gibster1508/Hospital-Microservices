@@ -7,6 +7,8 @@ import com.gibster.nm.service.NurseService;
 import com.gibster.repo.commons.exceptions.BusinessLayerException;
 import com.gibster.repo.nm.dto.NurseDto;
 import com.gibster.repo.nm.model.Nurse;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class NurseServiceImpl implements NurseService {
   @Override
   public NurseDto create(Nurse nurse) throws BusinessLayerException {
     try {
+      nurse.setPatients(Collections.emptyList());
       Nurse savedEntity = repository.save(nurse);
 
       hospitalFeign.updateNurseInformation(savedEntity.getHospitalId(), savedEntity);
@@ -93,4 +96,28 @@ public class NurseServiceImpl implements NurseService {
       throw new BusinessLayerException(e.getMessage(), e);
     }
   }
+
+  @Override
+  public NurseDto appointPatientForNurse(Long nurseId, Long patientId) throws BusinessLayerException {
+    try {
+      Nurse nurse = repository.findById(nurseId).orElse(null);
+      if (Objects.isNull(nurse))
+        return null;
+      if (nurse.getPatients().isEmpty()) {
+        List<Long> patientList = new ArrayList<>();
+        patientList.add(patientId);
+        nurse.setPatients(patientList);
+      } else {
+        List<Long> patientList = new ArrayList<>(nurse.getPatients());
+        patientList.add(patientId);
+        nurse.setPatients(patientList);
+      }
+      return PopulateHelper.convertToNurseDto(repository.save(nurse));
+    }catch (Exception e) {
+      throw new BusinessLayerException(e.getMessage(), e);
+    }
+  }
+
+
+
 }

@@ -2,6 +2,7 @@ package com.gibster.pm.feigns;
 
 import com.gibster.repo.dm.dto.DoctorUpdateDto;
 import com.gibster.repo.dm.model.Doctor;
+import com.gibster.repo.pm.model.Patient;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,4 +34,10 @@ public interface DoctorFeign {
 
     @PutMapping(path = "/api/doctor/deleted-hospital/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> updateDeletedHospital(@PathVariable Long id);
+
+    @PutMapping(path = "/api/doctor/updated-patient/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> updatePatientInformation(@PathVariable Long id, @RequestBody Patient patient);
+
+    @PutMapping(path = "/api/doctor/deleted-patient/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> updateDeletedPatient(@PathVariable Long id, @RequestBody Patient patient);
 }

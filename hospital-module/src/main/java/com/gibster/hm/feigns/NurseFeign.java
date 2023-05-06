@@ -2,6 +2,7 @@ package com.gibster.hm.feigns;
 
 import com.gibster.repo.nm.dto.NurseUpdateDto;
 import com.gibster.repo.dm.model.Doctor;
+import javax.transaction.Transactional;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,4 +34,8 @@ public interface NurseFeign {
 
   @PutMapping(path = "/api/nurse/deleted-hospital/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   ResponseEntity<String> updateDeletedHospital(@PathVariable Long id);
+
+  @PutMapping(path = "/api/nurse/{nurseId}/appoint/patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Transactional
+  ResponseEntity<String> appointPatientForNurse(@PathVariable Long nurseId, @PathVariable Long patientId);
 }

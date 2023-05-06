@@ -3,6 +3,7 @@ package com.gibster.dm.service;
 import com.gibster.repo.commons.exceptions.BusinessLayerException;
 import com.gibster.repo.dm.dto.DoctorDto;
 import com.gibster.repo.dm.model.Doctor;
+import com.gibster.repo.pm.model.Patient;
 import java.util.List;
 
 public interface DoctorService {
@@ -17,4 +18,10 @@ public interface DoctorService {
     boolean delete(Long doctorId) throws BusinessLayerException;
 
     List<DoctorDto> list() throws BusinessLayerException;
+
+    DoctorDto updatePatientInfo(Long id, Patient patient) throws BusinessLayerException;
+
+    DoctorDto updateDeletedPatient(Long id, Patient patient) throws BusinessLayerException;
+
+    DoctorDto appointPatientForDoctor(Long doctorId, Long patientId) throws BusinessLayerException;
 }

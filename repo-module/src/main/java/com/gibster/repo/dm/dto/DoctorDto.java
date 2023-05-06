@@ -1,5 +1,6 @@
 package com.gibster.repo.dm.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,4 +18,6 @@ public class DoctorDto {
     private String type;
     private String address;
     private Long hospitalId;
+    private List<Long> patients;
+
 }

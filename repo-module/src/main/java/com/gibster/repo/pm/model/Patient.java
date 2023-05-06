@@ -46,4 +46,5 @@ public class Patient {
   @Getter
   @Setter
   private Long hospitalId;
+
 }

@@ -1,6 +1,8 @@
 package com.gibster.repo.dm.model;
 
 import com.gibster.repo.dm.model.enums.DoctorType;
+import java.util.List;
+import javax.persistence.ElementCollection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,4 +47,9 @@ public class Doctor {
     @Getter
     @Setter
     private Long hospitalId;
+
+    @Getter
+    @Setter
+    @ElementCollection
+    private List<Long> patients;
 }

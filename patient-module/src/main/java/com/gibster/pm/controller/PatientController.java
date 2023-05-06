@@ -141,4 +141,28 @@ public class PatientController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
+
+    @PutMapping(path = "/{patientId}/appoint/doctor/{doctorId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> appointDoctorForPatient(@PathVariable Long patientId, @PathVariable Long doctorId) {
+        try {
+            PatientDto patientDto = service.appointDoctorForPatient(patientId, doctorId);
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(objectMapper.writeValueAsString(patientDto));
+        } catch (JsonProcessingException | BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PutMapping(path = "/{patientId}/appoint/nurse/{nurseId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> appointNurseForPatient(@PathVariable Long patientId, @PathVariable Long nurseId) {
+        try {
+            PatientDto patientDto = service.appointNurseForPatient(patientId, nurseId);
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(objectMapper.writeValueAsString(patientDto));
+        } catch (JsonProcessingException | BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 }

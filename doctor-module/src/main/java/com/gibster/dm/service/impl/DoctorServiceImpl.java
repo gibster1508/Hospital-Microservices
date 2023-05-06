@@ -7,6 +7,9 @@ import com.gibster.dm.service.DoctorService;
 import com.gibster.repo.commons.exceptions.BusinessLayerException;
 import com.gibster.repo.dm.dto.DoctorDto;
 import com.gibster.repo.dm.model.Doctor;
+import com.gibster.repo.pm.model.Patient;
+import java.util.ArrayList;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public DoctorDto create(Doctor doctor) throws BusinessLayerException {
         try {
+            doctor.setPatients(Collections.emptyList());
             Doctor savedEntity = repository.save(doctor);
             hospitalFeign.updateDoctorInformation(savedEntity.getHospitalId(), savedEntity);
             return PopulateHelper.convertToDoctorDto(savedEntity);
@@ -94,4 +98,62 @@ public class DoctorServiceImpl implements DoctorService {
             throw new BusinessLayerException(e.getMessage(), e);
         }
     }
+
+    @Override
+    public DoctorDto updatePatientInfo(Long id, Patient patient) throws BusinessLayerException {
+        try {
+            Doctor doctor = repository.findById(id).orElse(null);
+            if (Objects.isNull(doctor))
+                return null;
+            if (doctor.getPatients().isEmpty()) {
+                List<Long> patientList = new ArrayList<>();
+                patientList.add(patient.getId());
+                doctor.setPatients(patientList);
+            } else {
+                List<Long> patientList = new ArrayList<>(doctor.getPatients());
+                patientList.add(patient.getId());
+                doctor.setPatients(patientList);
+            }
+            return PopulateHelper.convertToDoctorDto(repository.save(doctor));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public DoctorDto updateDeletedPatient(Long id, Patient patient) throws BusinessLayerException {
+        try {
+            Doctor doctor = repository.findById(id).orElse(null);
+            if (Objects.isNull(doctor))
+                return null;
+            List<Long> patientList = new ArrayList<>(doctor.getPatients());
+            patientList.remove(patient.getId());
+            doctor.setPatients(patientList);
+            return PopulateHelper.convertToDoctorDto(repository.save(doctor));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public DoctorDto appointPatientForDoctor(Long doctorId, Long patientId) throws BusinessLayerException {
+        try {
+            Doctor doctor = repository.findById(doctorId).orElse(null);
+            if (Objects.isNull(doctor))
+                return null;
+            if (doctor.getPatients().isEmpty()) {
+                List<Long> patientList = new ArrayList<>();
+                patientList.add(patientId);
+                doctor.setPatients(patientList);
+            } else {
+                List<Long> patientList = new ArrayList<>(doctor.getPatients());
+                patientList.add(patientId);
+                doctor.setPatients(patientList);
+            }
+            return PopulateHelper.convertToDoctorDto(repository.save(doctor));
+        }catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
 }

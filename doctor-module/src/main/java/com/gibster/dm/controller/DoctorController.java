@@ -7,6 +7,7 @@ import com.gibster.repo.dm.dto.DoctorUpdateDto;
 import com.gibster.repo.dm.model.Doctor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gibster.repo.pm.model.Patient;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.http.MediaType;
@@ -99,6 +100,42 @@ public class DoctorController {
                     ResponseEntity.internalServerError().build() :
                     ResponseEntity.ok(String.valueOf(serviceResult));
         } catch (BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PutMapping(path = "/updated-patient/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updatePatientInformation(@PathVariable Long id, @RequestBody Patient patient) {
+        try {
+            DoctorDto doctorDto = service.updatePatientInfo(id, patient);
+            return Objects.isNull(doctorDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(objectMapper.writeValueAsString(doctorDto));
+        } catch (JsonProcessingException | BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PutMapping(path = "/deleted-patient/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateDeletedPatient(@PathVariable Long id, @RequestBody Patient patient) {
+        try {
+            DoctorDto doctorDto = service.updateDeletedPatient(id, patient);
+            return Objects.isNull(doctorDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(objectMapper.writeValueAsString(doctorDto));
+        } catch (JsonProcessingException | BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PutMapping(path = "/{doctorId}/appoint/patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> appointPatientForDoctor(@PathVariable Long doctorId, @PathVariable Long patientId){
+        try {
+            DoctorDto doctorDto = service.appointPatientForDoctor(doctorId, patientId);
+            return Objects.isNull(doctorDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(objectMapper.writeValueAsString(doctorDto));
+        } catch (JsonProcessingException | BusinessLayerException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

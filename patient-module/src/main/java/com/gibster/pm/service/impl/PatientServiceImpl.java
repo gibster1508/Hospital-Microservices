@@ -167,4 +167,46 @@ public class PatientServiceImpl implements PatientService {
             throw new BusinessLayerException(e.getMessage(), e);
         }
     }
+
+    @Override
+    public PatientDto appointDoctorForPatient(Long patientId, Long doctorId) throws BusinessLayerException {
+        try {
+            Patient patient = repository.findById(patientId).orElse(null);
+            if (Objects.isNull(patient))
+                return null;
+            if (patient.getDoctors().isEmpty()) {
+                List<Long> doctorsList = new ArrayList<>();
+                doctorsList.add(doctorId);
+                patient.setDoctors(doctorsList);
+            } else {
+                List<Long> doctorsList = new ArrayList<>(patient.getDoctors());
+                doctorsList.add(doctorId);
+                patient.setDoctors(doctorsList);
+            }
+            return PopulateHelper.convertToPatientDto(repository.save(patient));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public PatientDto appointNurseForPatient(Long patientId, Long nurseId) throws BusinessLayerException {
+        try {
+            Patient patient = repository.findById(patientId).orElse(null);
+            if (Objects.isNull(patient))
+                return null;
+            if (patient.getNurses().isEmpty()) {
+                List<Long> nursesList = new ArrayList<>();
+                nursesList.add(nurseId);
+                patient.setNurses(nursesList);
+            } else {
+                List<Long> nursesList = new ArrayList<>(patient.getNurses());
+                nursesList.add(nurseId);
+                patient.setNurses(nursesList);
+            }
+            return PopulateHelper.convertToPatientDto(repository.save(patient));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
 }

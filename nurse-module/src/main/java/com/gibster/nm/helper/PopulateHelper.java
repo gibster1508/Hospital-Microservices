@@ -18,7 +18,10 @@ public final class PopulateHelper {
                 .id(nurse.getId())
                 .name(nurse.getName())
                 .address(convertToAddressString(nurse.getAddress()))
-                .hospitalId(nurse.getHospitalId()).build();
+                .hospitalId(nurse.getHospitalId())
+                .patients(nurse.getPatients())
+                .build();
+
     }
 
     private static String convertToAddressString(AddressModel addressModel) {

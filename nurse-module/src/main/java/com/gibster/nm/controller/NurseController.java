@@ -102,4 +102,16 @@ public class NurseController {
       return ResponseEntity.internalServerError().body(e.getMessage());
     }
   }
+
+  @PutMapping(path = "/{nurseId}/appoint/patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> appointPatientForDoctor(@PathVariable Long nurseId, @PathVariable Long patientId){
+    try {
+      NurseDto nurseDto = service.appointPatientForNurse(nurseId, patientId);
+      return Objects.isNull(nurseDto) ?
+          ResponseEntity.internalServerError().build() :
+          ResponseEntity.ok(objectMapper.writeValueAsString(nurseDto));
+    } catch (JsonProcessingException | BusinessLayerException e) {
+      return ResponseEntity.internalServerError().body(e.getMessage());
+    }
+  }
 }

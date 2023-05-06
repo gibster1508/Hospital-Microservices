@@ -28,4 +28,7 @@ public interface PatientService {
   List<PatientDto> list() throws BusinessLayerException;
 
   boolean delete(Long id) throws BusinessLayerException;
+
+  PatientDto appointDoctorForPatient(Long patientId, Long doctorId) throws BusinessLayerException;
+  PatientDto appointNurseForPatient(Long patientId, Long nurseId) throws BusinessLayerException;
 }

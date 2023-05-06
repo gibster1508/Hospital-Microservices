@@ -18,7 +18,9 @@ public final class PopulateHelper {
                 .name(doctor.getName())
                 .type(String.valueOf(doctor.getDoctorType()))
                 .address(convertToAddressString(doctor.getAddress()))
-                .hospitalId(doctor.getHospitalId()).build();
+                .hospitalId(doctor.getHospitalId())
+                .patients(doctor.getPatients())
+                .build();
     }
 
     private static String convertToAddressString(AddressModel addressModel) {
