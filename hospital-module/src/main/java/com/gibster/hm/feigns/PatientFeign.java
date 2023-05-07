@@ -16,4 +16,5 @@ public interface PatientFeign {
   @PutMapping(path = "/api/patient/{patientId}/appoint/nurse/{nurseId}", produces = MediaType.APPLICATION_JSON_VALUE)
   @Transactional
   ResponseEntity<String> appointNurseForPatient(@PathVariable Long patientId, @PathVariable Long nurseId);
+
 }

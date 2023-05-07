@@ -23,5 +23,7 @@ public interface DoctorService {
 
     DoctorDto updateDeletedPatient(Long id, Patient patient) throws BusinessLayerException;
 
+    DoctorDto updateDischargedPatient(Long doctorId, Long patientId) throws BusinessLayerException;
+
     DoctorDto appointPatientForDoctor(Long doctorId, Long patientId) throws BusinessLayerException;
 }

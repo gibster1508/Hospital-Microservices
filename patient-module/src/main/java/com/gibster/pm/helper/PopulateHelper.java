@@ -6,6 +6,7 @@ import com.gibster.repo.pm.dto.PatientUpdateDto;
 import com.gibster.repo.pm.model.AddressModel;
 import com.gibster.repo.pm.dto.PatientDto;
 import com.gibster.repo.pm.model.Appointment;
+import com.gibster.repo.pm.model.Diagnosis;
 import com.gibster.repo.pm.model.Patient;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,12 +24,13 @@ public final class PopulateHelper {
         return PatientDto.builder()
                 .id(patient.getId())
                 .name(patient.getName())
-                .diagnosis(patient.getDiagnosis())
+                .diagnosis(convertToDiagnosisString(patient.getDiagnosis()))
                 .address(convertToAddressString(patient.getAddress()))
                 .appointment(convertToAppointmentString(patient.getAppointment()))
                 .doctors(patient.getDoctors())
                 .nurses(patient.getNurses())
                 .hospitalId(patient.getHospitalId())
+                .isDischarged(patient.getIsDischarged())
                 .build();
     }
 
@@ -41,6 +43,10 @@ public final class PopulateHelper {
 
     private static String convertToAddressString(AddressModel addressModel) {
         return addressModel.getStreet() + COMMA + addressModel.getCity() + COMMA + addressModel.getZipCode();
+    }
+
+    private static String convertToDiagnosisString(Diagnosis diagnosis) {
+        return diagnosis.getDiagnosis();
     }
 
     private static String convertToAppointmentString(Appointment appointment) {

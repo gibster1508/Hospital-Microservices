@@ -136,6 +136,21 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    public DoctorDto updateDischargedPatient(Long doctorId, Long patientId) throws BusinessLayerException {
+        try {
+            Doctor doctor = repository.findById(doctorId).orElse(null);
+            if (Objects.isNull(doctor))
+                return null;
+            List<Long> patientList = new ArrayList<>(doctor.getPatients());
+            patientList.remove(patientId);
+            doctor.setPatients(patientList);
+            return PopulateHelper.convertToDoctorDto(repository.save(doctor));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
+    @Override
     public DoctorDto appointPatientForDoctor(Long doctorId, Long patientId) throws BusinessLayerException {
         try {
             Doctor doctor = repository.findById(doctorId).orElse(null);

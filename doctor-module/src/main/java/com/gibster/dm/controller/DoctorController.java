@@ -1,5 +1,7 @@
 package com.gibster.dm.controller;
 
+import com.gibster.dm.feigns.NurseFeign;
+import com.gibster.dm.feigns.PatientFeign;
 import com.gibster.dm.service.DoctorService;
 import com.gibster.repo.commons.exceptions.BusinessLayerException;
 import com.gibster.repo.dm.dto.DoctorDto;
@@ -7,6 +9,9 @@ import com.gibster.repo.dm.dto.DoctorUpdateDto;
 import com.gibster.repo.dm.model.Doctor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gibster.repo.pm.dto.DoctorAppointmentDto;
+import com.gibster.repo.pm.dto.PatientDto;
+import com.gibster.repo.pm.model.Diagnosis;
 import com.gibster.repo.pm.model.Patient;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
@@ -31,6 +36,8 @@ import java.util.Objects;
 public class DoctorController {
     private final DoctorService service;
     private final ObjectMapper objectMapper;
+    private final PatientFeign patientFeign;
+    private final NurseFeign nurseFeign;
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> create(@Valid @RequestBody Doctor doctor) {
@@ -136,6 +143,52 @@ public class DoctorController {
                 ResponseEntity.internalServerError().build() :
                 ResponseEntity.ok(objectMapper.writeValueAsString(doctorDto));
         } catch (JsonProcessingException | BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/appoint/diagnosis/for/patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> appointDiagnosisForPatient(@PathVariable Long patientId, @RequestBody
+    Diagnosis diagnosis){
+        try {
+            PatientDto patientDto = patientFeign.appointDiagnosisForPatient(patientId, diagnosis).getBody();
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(objectMapper.writeValueAsString(patientDto));
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/assign/appointment/for/patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> assignAnAppointmentByDoctor(@PathVariable Long patientId,
+                                                           @RequestBody DoctorAppointmentDto doctorAppointmentDto){
+        try {
+            PatientDto patientDto = patientFeign.assignAnAppointmentByDoctor(patientId, doctorAppointmentDto).getBody();
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(objectMapper.writeValueAsString(patientDto));
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/discharge/patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> dischargePatientByDoctor(@PathVariable Long patientId, @RequestBody Diagnosis finalDiagnosis){
+        try {
+            PatientDto patientDto = patientFeign.dischargePatientByDoctor(patientId).getBody();
+
+            Long doctorId = Objects.requireNonNull(patientDto).getDoctors().get(0);
+            Long nurseId = Objects.requireNonNull(patientDto).getNurses().get(0);
+
+            patientFeign.appointDiagnosisForPatient(patientId, finalDiagnosis);
+            service.updateDischargedPatient(doctorId, patientId);
+            nurseFeign.updateDischargedPatient(nurseId, patientId);
+
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(objectMapper.writeValueAsString(patientDto));
+        } catch (BusinessLayerException | JsonProcessingException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

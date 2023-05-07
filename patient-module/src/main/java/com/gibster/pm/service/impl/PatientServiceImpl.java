@@ -9,11 +9,13 @@ import com.gibster.pm.service.PatientService;
 import com.gibster.repo.commons.exceptions.BusinessLayerException;
 import com.gibster.repo.dm.model.Doctor;
 import com.gibster.repo.nm.model.Nurse;
+import com.gibster.repo.pm.dto.DoctorAppointmentDto;
+import com.gibster.repo.pm.dto.NurseAppointmentDto;
 import com.gibster.repo.pm.dto.PatientDto;
 import com.gibster.repo.pm.dto.PatientUpdateDto;
 import com.gibster.repo.pm.model.Appointment;
+import com.gibster.repo.pm.model.Diagnosis;
 import com.gibster.repo.pm.model.Patient;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +39,8 @@ public class PatientServiceImpl implements PatientService {
         try {
             patient.setDoctors(Collections.emptyList());
             patient.setNurses(Collections.emptyList());
-            patient.setDiagnosis("not defined");
-            Appointment appointment = new Appointment();
-            System.out.println(Arrays.toString(appointment.getClass().getFields()));
+            patient.setDiagnosis(Diagnosis.builder().diagnosis("not defined").build());
+
             patient.setAppointment(new Appointment("Procedures - not assigned", "medicament - not assigned", "surgery - not assigned"));
             Patient savedPatient = repository.save(patient);
             hospitalFeign.updatePatientInformation(savedPatient.getHospitalId(), savedPatient);
@@ -209,6 +210,69 @@ public class PatientServiceImpl implements PatientService {
                 nursesList.add(nurseId);
                 patient.setNurses(nursesList);
             }
+            return PopulateHelper.convertToPatientDto(repository.save(patient));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public PatientDto appointDiagnosisForPatient(Long patientId, Diagnosis diagnosis) throws BusinessLayerException {
+        try {
+            Patient patient = repository.findById(patientId).orElse(null);
+            if (Objects.isNull(patient))
+                return null;
+            patient.setDiagnosis(diagnosis);
+            return PopulateHelper.convertToPatientDto(repository.save(patient));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public PatientDto assignAnAppointmentByNurse(Long patientId, NurseAppointmentDto nurseAppointmentDto) throws BusinessLayerException {
+        try {
+            Patient patient = repository.findById(patientId).orElse(null);
+            if (Objects.isNull(patient))
+                return null;
+            Appointment appointment = new Appointment(
+                nurseAppointmentDto.getProcedures(),
+                nurseAppointmentDto.getMedicament(),
+                "surgery - not assigned");
+            patient.setAppointment(appointment);
+            return PopulateHelper.convertToPatientDto(repository.save(patient));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public PatientDto assignAnAppointmentByDoctor(Long patientId, DoctorAppointmentDto doctorAppointmentDto) throws BusinessLayerException {
+        try {
+            Patient patient = repository.findById(patientId).orElse(null);
+            if (Objects.isNull(patient))
+                return null;
+
+            Appointment appointment = new Appointment(
+                doctorAppointmentDto.getProcedures(),
+                doctorAppointmentDto.getMedicament(),
+                doctorAppointmentDto.getSurgery());
+
+            patient.setAppointment(appointment);
+            return PopulateHelper.convertToPatientDto(repository.save(patient));
+        } catch (Exception e) {
+            throw new BusinessLayerException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public PatientDto dischargePatientByDoctor(Long patientId) throws BusinessLayerException {
+        try {
+            Patient patient = repository.findById(patientId).orElse(null);
+
+            if (Objects.isNull(patient))
+                return null;
+            patient.setIsDischarged(true);
             return PopulateHelper.convertToPatientDto(repository.save(patient));
         } catch (Exception e) {
             throw new BusinessLayerException(e.getMessage(), e);

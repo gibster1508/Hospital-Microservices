@@ -28,8 +28,10 @@ public class Patient {
 
   @Getter
   @Setter
+  @NotEmpty
+  @Embedded
   @Column(nullable = false)
-  private String diagnosis;
+  private Diagnosis diagnosis;
 
   @Getter
   @Setter
@@ -57,5 +59,9 @@ public class Patient {
   @Getter
   @Setter
   private Long hospitalId;
+
+  @Getter
+  @Setter
+  private Boolean isDischarged = false;
 
 }

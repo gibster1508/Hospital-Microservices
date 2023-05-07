@@ -7,8 +7,11 @@ import com.gibster.repo.dm.model.Doctor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gibster.repo.nm.model.Nurse;
+import com.gibster.repo.pm.dto.DoctorAppointmentDto;
+import com.gibster.repo.pm.dto.NurseAppointmentDto;
 import com.gibster.repo.pm.dto.PatientDto;
 import com.gibster.repo.pm.dto.PatientUpdateDto;
+import com.gibster.repo.pm.model.Diagnosis;
 import com.gibster.repo.pm.model.Patient;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
@@ -163,6 +166,58 @@ public class PatientController {
                 ResponseEntity.ok(objectMapper.writeValueAsString(patientDto));
         } catch (JsonProcessingException | BusinessLayerException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/{patientId}/appoint/diagnosis", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PatientDto> appointDiagnosisForPatient(@PathVariable Long patientId,
+                                                                 @RequestBody Diagnosis diagnosis) {
+        try {
+            PatientDto patientDto = service.appointDiagnosisForPatient(patientId, diagnosis);
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(patientDto);
+        } catch (BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(PatientDto.builder().build());
+        }
+    }
+
+
+    @PostMapping(path = "/{patientId}/nurse/assign/appointment", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PatientDto> assignAnAppointmentByNurse(@PathVariable Long patientId,
+                                                             @RequestBody NurseAppointmentDto nurseAppointmentDto) {
+        try {
+            PatientDto patientDto = service.assignAnAppointmentByNurse(patientId, nurseAppointmentDto);
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(patientDto);
+        } catch (BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(PatientDto.builder().build());
+        }
+    }
+
+    @PostMapping(path = "/{patientId}/doctor/assign/appointment", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PatientDto> assignAnAppointmentByDoctor(@PathVariable Long patientId,
+                                                             @RequestBody DoctorAppointmentDto doctorAppointmentDto) {
+        try {
+            PatientDto patientDto = service.assignAnAppointmentByDoctor(patientId, doctorAppointmentDto);
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(patientDto);
+        } catch (BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(PatientDto.builder().build());
+        }
+    }
+
+    @PostMapping(path = "/{patientId}/discharge", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PatientDto> dischargePatientByDoctor(@PathVariable Long patientId) {
+        try {
+            PatientDto patientDto = service.dischargePatientByDoctor(patientId);
+            return Objects.isNull(patientDto) ?
+                ResponseEntity.internalServerError().build() :
+                ResponseEntity.ok(patientDto);
+        } catch (BusinessLayerException e) {
+            return ResponseEntity.internalServerError().body(PatientDto.builder().build());
         }
     }
 }

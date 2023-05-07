@@ -7,6 +7,7 @@ import com.gibster.nm.service.NurseService;
 import com.gibster.repo.commons.exceptions.BusinessLayerException;
 import com.gibster.repo.nm.dto.NurseDto;
 import com.gibster.repo.nm.model.Nurse;
+import com.gibster.repo.pm.model.Patient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -92,6 +93,36 @@ public class NurseServiceImpl implements NurseService {
   public List<NurseDto> list() throws BusinessLayerException {
     try {
       return repository.findAll().stream().map(PopulateHelper::convertToNurseDto).toList();
+    } catch (Exception e) {
+      throw new BusinessLayerException(e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public NurseDto updateDeletedPatient(Long id, Patient patient) throws BusinessLayerException {
+    try {
+      Nurse nurse = repository.findById(id).orElse(null);
+      if (Objects.isNull(nurse))
+        return null;
+      List<Long> patientList = new ArrayList<>(nurse.getPatients());
+      patientList.remove(patient.getId());
+      nurse.setPatients(patientList);
+      return PopulateHelper.convertToNurseDto(repository.save(nurse));
+    } catch (Exception e) {
+      throw new BusinessLayerException(e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public NurseDto updateDischargedPatient(Long nurseId, Long patientId) throws BusinessLayerException {
+    try {
+      Nurse nurse = repository.findById(nurseId).orElse(null);
+      if (Objects.isNull(nurse))
+        return null;
+      List<Long> patientList = new ArrayList<>(nurse.getPatients());
+      patientList.remove(patientId);
+      nurse.setPatients(patientList);
+      return PopulateHelper.convertToNurseDto(repository.save(nurse));
     } catch (Exception e) {
       throw new BusinessLayerException(e.getMessage(), e);
     }

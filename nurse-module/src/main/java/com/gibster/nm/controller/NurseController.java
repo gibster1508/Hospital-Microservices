@@ -2,12 +2,16 @@ package com.gibster.nm.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gibster.nm.feigns.PatientFeign;
 import com.gibster.nm.service.NurseService;
 import com.gibster.repo.commons.exceptions.BusinessLayerException;
 
 import com.gibster.repo.nm.dto.NurseDto;
 import com.gibster.repo.nm.dto.NurseUpdateDto;
 import com.gibster.repo.nm.model.Nurse;
+import com.gibster.repo.pm.dto.NurseAppointmentDto;
+import com.gibster.repo.pm.dto.PatientDto;
+import com.gibster.repo.pm.model.Patient;
 import java.util.List;
 import java.util.Objects;
 import javax.validation.Valid;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class NurseController {
   private final NurseService service;
   private final ObjectMapper objectMapper;
+  private final PatientFeign patientFeign;
 
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> create(@Valid @RequestBody Nurse nurse) {
@@ -103,8 +108,32 @@ public class NurseController {
     }
   }
 
+  @PutMapping(path = "/deleted-patient/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> updateDeletedPatient(@PathVariable Long id, @RequestBody Patient patient) {
+    try {
+      NurseDto nurseDto = service.updateDeletedPatient(id, patient);
+      return Objects.isNull(nurseDto) ?
+          ResponseEntity.internalServerError().build() :
+          ResponseEntity.ok(objectMapper.writeValueAsString(nurseDto));
+    } catch (JsonProcessingException | BusinessLayerException e) {
+      return ResponseEntity.internalServerError().body(e.getMessage());
+    }
+  }
+
+  @PutMapping(path = "/{nurseId}/discharged-patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> updateDischargedPatient(@PathVariable Long nurseId, @PathVariable Long patientId) {
+    try {
+      NurseDto nurseDto = service.updateDischargedPatient(nurseId, patientId);
+      return Objects.isNull(nurseDto) ?
+          ResponseEntity.internalServerError().build() :
+          ResponseEntity.ok(objectMapper.writeValueAsString(nurseDto));
+    } catch (JsonProcessingException | BusinessLayerException e) {
+      return ResponseEntity.internalServerError().body(e.getMessage());
+    }
+  }
+
   @PutMapping(path = "/{nurseId}/appoint/patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> appointPatientForDoctor(@PathVariable Long nurseId, @PathVariable Long patientId){
+  public ResponseEntity<String> appointPatientForNurse(@PathVariable Long nurseId, @PathVariable Long patientId){
     try {
       NurseDto nurseDto = service.appointPatientForNurse(nurseId, patientId);
       return Objects.isNull(nurseDto) ?
@@ -114,4 +143,19 @@ public class NurseController {
       return ResponseEntity.internalServerError().body(e.getMessage());
     }
   }
+
+  @PostMapping(path = "/assign/appointment/for/patient/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  ResponseEntity<String> assignAnAppointmentByNurse(@PathVariable Long patientId,
+                                                    @RequestBody NurseAppointmentDto nurseAppointmentDto){
+    try {
+      PatientDto patientDto = patientFeign.assignAnAppointmentByNurse(patientId, nurseAppointmentDto).getBody();
+      return Objects.isNull(patientDto) ?
+          ResponseEntity.internalServerError().build() :
+          ResponseEntity.ok(objectMapper.writeValueAsString(patientDto));
+    } catch (JsonProcessingException e) {
+      return ResponseEntity.internalServerError().body(e.getMessage());
+    }
+  }
+
+
 }

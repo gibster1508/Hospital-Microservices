@@ -21,4 +21,5 @@ public class PatientDto {
   private List<Long> doctors;
   private List<Long> nurses;
   private Long hospitalId;
+  private Boolean isDischarged;
 }
